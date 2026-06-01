@@ -51,19 +51,44 @@ app.get('/livros', verificarToken, async (req, res) => {
     }
 });
 
-app.post('/resumo', verificarToken, async (req, res) => {
+app.get('/livros/:id', verificarToken, async (req, res) => {
     try {
-        const { texto } = req.body;
-        const prompt = `Resuma este trecho e destaque 3 pontos principais:\n\n${texto}`;
+        const { id } = req.params;
+        const { rows } = await pool.query('SELECT * FROM livros WHERE id = $1', [id]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Livro não encontrado' });
+        }
+        
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao buscar o livro' });
+    }
+});
+
+app.post('/livros/:id/resumo', verificarToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query('SELECT titulo, conteudo FROM livros WHERE id = $1', [id]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Livro não encontrado' });
+        }
+        
+        const livro = rows[0];
+        const prompt = `Resuma a seguinte obra literária chamada ${livro.titulo}. Destaque os pontos principais da narrativa baseando-se neste texto original:\n\n${livro.conteudo}`;
         
         const response = await ai.models.generateContent({
             model: 'gemini-1.5-flash',
             contents: prompt,
         });
         
-        res.json({ resumo: response.text });
+        res.json({ 
+            titulo: livro.titulo,
+            resumo: response.text 
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao gerar resumo' });
+        res.status(500).json({ error: 'Erro ao gerar o resumo com a IA' });
     }
 });
 
