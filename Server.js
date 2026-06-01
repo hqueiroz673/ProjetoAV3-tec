@@ -88,7 +88,12 @@ app.post('/livros/:id/resumo', verificarToken, async (req, res) => {
             resumo: response.text 
         });
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao gerar o resumo com a IA' });
+        console.error("ERRO GRAVE NA ROTA DE RESUMO:");
+        console.error(error);
+        res.status(500).json({ 
+            error: 'Erro interno no servidor',
+            detalhe: error.message
+        });
     }
 });
 
