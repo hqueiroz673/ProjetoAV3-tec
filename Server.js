@@ -3,6 +3,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const { GoogleGenAI } = require('@google/genai');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 app.use(cors());
@@ -18,15 +19,52 @@ const pool = new Pool({
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const JWT_SECRET = process.env.JWT_SECRET || 'chave_super_secreta_unifor';
 
-app.post('/login', (req, res) => {
-    const { email, senha } = req.body;
-    
-    if (email === 'hiago@unifor.br' && senha === '123456') {
-        const token = jwt.sign({ userId: 1, email }, JWT_SECRET, { expiresIn: '1h' });
-        return res.json({ auth: true, token });
+app.post('/registro', async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+        const userExists = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+        
+        if (userExists.rows.length > 0) {
+            return res.status(400).json({ error: 'Email já cadastrado' });
+        }
+        
+        const salt = await bcrypt.genSalt(10);
+        const senhaHash = await bcrypt.hash(senha, salt);
+        
+        const newUser = await pool.query(
+            'INSERT INTO usuarios (email, senha) VALUES ($1, $2) RETURNING id, email',
+            [email, senhaHash]
+        );
+        
+        res.status(201).json({ message: 'Usuário criado com sucesso!', usuario: newUser.rows[0] });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao registrar usuário' });
     }
-    
-    res.status(401).json({ auth: false, message: 'Login invalido' });
+});
+
+app.post('/login', async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+        const { rows } = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+        
+        if (rows.length === 0) {
+            return res.status(401).json({ auth: false, message: 'Usuário não encontrado' });
+        }
+        
+        const usuario = rows[0];
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+        
+        if (!senhaValida) {
+            return res.status(401).json({ auth: false, message: 'Senha incorreta' });
+        }
+        
+        const token = jwt.sign({ userId: usuario.id, email: usuario.email }, JWT_SECRET, { expiresIn: '1h' });
+        return res.json({ auth: true, token });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro no servidor durante o login' });
+    }
 });
 
 const verificarToken = (req, res, next) => {
