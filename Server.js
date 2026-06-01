@@ -117,7 +117,7 @@ app.post('/livros/:id/resumo', verificarToken, async (req, res) => {
         const prompt = `Resuma a seguinte obra literária chamada ${livro.titulo}. Destaque os pontos principais da narrativa baseando-se neste texto original:\n\n${livro.conteudo}`;
         
         const response = await ai.models.generateContent({
-            model: 'gemini-1.5-flash',
+            model: 'gemini-2.0-flash',
             contents: prompt,
         });
         
