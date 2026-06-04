@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,18 +31,18 @@
         <div id="tela-registro" class="tela ativa">
             <div class="form-box">
                 <h2>Criar Conta</h2>
-                <input type="email" id="reg-email" placeholder="Digite seu e-mail">
-                <input type="password" id="reg-senha" placeholder="Crie uma senha">
-                <button onclick="registrar()">Registrar</button>
+                <input type="email" id="reg-email" placeholder="Digite o seu e-mail">
+                <input type="password" id="reg-senha" placeholder="Crie uma palavra-passe">
+                <button onclick="registrar()">Registar</button>
                 <span class="link" onclick="mostrarTela('tela-login')">Ja tem conta? Faca o Login</span>
             </div>
         </div>
 
         <div id="tela-login" class="tela">
             <div class="form-box">
-                <h2>Acessar Sistema</h2>
-                <input type="email" id="log-email" placeholder="Seu e-mail">
-                <input type="password" id="log-senha" placeholder="Sua senha">
+                <h2>Aceder ao Sistema</h2>
+                <input type="email" id="log-email" placeholder="O seu e-mail">
+                <input type="password" id="log-senha" placeholder="A sua palavra-passe">
                 <button onclick="fazerLogin()">Entrar</button>
                 <span class="link" onclick="mostrarTela('tela-registro')">Nao tem conta? Crie aqui</span>
             </div>
@@ -72,13 +72,13 @@
         async function registrar() {
             const email = document.getElementById('reg-email').value;
             const senha = document.getElementById('reg-senha').value;
-            
-            const resposta = await fetch('/registro', {
+
+            const resposta = await fetch('registro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, senha: senha })
             });
-            
+
             if (resposta.ok) {
                 mostrarTela('tela-login');
             }
@@ -87,15 +87,15 @@
         async function fazerLogin() {
             const email = document.getElementById('log-email').value;
             const senha = document.getElementById('log-senha').value;
-            
-            const resposta = await fetch('/login', {
+
+            const resposta = await fetch('login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, senha: senha })
             });
-            
+
             const dados = await resposta.json();
-            
+
             if (dados.auth) {
                 meuToken = dados.token;
                 mostrarTela('tela-livros');
@@ -105,23 +105,24 @@
         async function buscarLivrosGratis() {
             const termo = document.getElementById('busca-livro').value;
             const lista = document.querySelector('.grid-livros');
-            
+
             if (!termo) {
                 lista.innerHTML = '<div class="mensagem-status">Por favor, digite um tema ou autor.</div>';
                 return;
             }
 
-            lista.innerHTML = '<div class="mensagem-status">Buscando livros... aguarde um momento.</div>';
-            
+            lista.innerHTML = '<div class="mensagem-status">A pesquisar livros... aguarde um momento.</div>';
+
             try {
-                // Agora quem faz a busca é o seu próprio servidor (Railway)
-                const urlBusca = '/api/pesquisar?tema=' + encodeURIComponent(termo);
+                const protocolo = 'https:';
+                const barra = String.fromCharCode(47);
+                const urlBusca = protocolo + barra + barra + 'www.googleapis.com' + barra + 'books' + barra + 'v1' + barra + 'volumes?q=' + encodeURIComponent(termo) + '&maxResults=20';
+
                 const resposta = await fetch(urlBusca);
                 const dados = await resposta.json();
-                
+
                 lista.innerHTML = '';
 
-                // Se o Google devolver um erro explicitly, a gente mostra
                 if (dados.error) {
                     lista.innerHTML = '<div class="mensagem-status">Erro da API: ' + (dados.error.message || 'Bloqueio do Google') + '</div>';
                     return;
@@ -133,28 +134,28 @@
                         const linkLeitura = item.accessInfo && item.accessInfo.webReaderLink ? item.accessInfo.webReaderLink : null;
                         const isFree = item.saleInfo && item.saleInfo.saleability === 'FREE';
                         const descricao = info.description ? info.description : 'Sem descricao detalhada.';
-                        
+
                         const div = document.createElement('div');
                         div.className = 'livro-item';
-                        
+
                         const titulo = document.createElement('strong');
                         titulo.textContent = info.title || 'Livro sem titulo';
-                        
+
                         const divBotoes = document.createElement('div');
-                        
+
                         if (linkLeitura) {
                             const btnLer = document.createElement('button');
-                            
+
                             if (isFree) {
                                 btnLer.textContent = 'Ler Livro Completo Gratis';
                             } else {
                                 btnLer.textContent = 'Ler Amostra (Preview)';
                                 btnLer.style.backgroundColor = 'rgb(220, 100, 0)';
                             }
-                            
+
                             btnLer.onclick = () => window.open(linkLeitura, '_blank');
                             divBotoes.appendChild(btnLer);
-                            
+
                             if (!isFree) {
                                 const aviso = document.createElement('div');
                                 aviso.className = 'alerta-pago';
@@ -162,12 +163,12 @@
                                 divBotoes.appendChild(aviso);
                             }
                         }
-                        
+
                         const btnResumo = document.createElement('button');
                         btnResumo.textContent = 'Gerar Resumo (IA)';
                         btnResumo.className = 'btn-secundario';
                         btnResumo.onclick = () => pedirResumo(info.title, descricao, div);
-                        
+
                         div.appendChild(titulo);
                         divBotoes.appendChild(btnResumo);
                         div.appendChild(divBotoes);
@@ -187,21 +188,21 @@
 
             const msg = document.createElement('div');
             msg.className = 'resumo-box';
-            msg.textContent = 'A Inteligencia Artificial esta trabalhando...';
+            msg.textContent = 'A Inteligencia Artificial esta a trabalhar...';
             elementoPai.appendChild(msg);
 
             try {
-                const resposta = await fetch('/resumo-ia', {
+                const resposta = await fetch('resumo-ia', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Authorization': 'Bearer ' + meuToken,
-                        'Content-Type': 'application/json' 
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ titulo: titulo, texto: texto })
                 });
-                
+
                 const dados = await resposta.json();
-                
+
                 if (dados.resumo) {
                     msg.textContent = dados.resumo;
                 } else {
