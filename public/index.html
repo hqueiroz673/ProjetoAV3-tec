@@ -5,123 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Biblioteca Inteligente</title>
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: rgb(235, 240, 245);
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-    }
-    .container {
-        background: white;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        width: 100%;
-        max-width: 450px;
-        text-align: center;
-    }
-    .tela {
-        display: none;
-    }
-    .ativa {
-        display: block;
-    }
-    h2 {
-        color: rgb(50, 50, 50);
-        margin-bottom: 20px;
-    }
-    input {
-        width: calc(100% - 22px);
-        padding: 12px;
-        margin: 10px 0;
-        border: 1px solid rgb(200, 200, 200);
-        border-radius: 6px;
-        box-sizing: border-box;
-        font-size: 15px;
-    }
-    button {
-        width: 100%;
-        padding: 12px;
-        background-color: rgb(0, 86, 179);
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-        margin-top: 15px;
-        transition: background-color 0.3s;
-    }
-    button:hover {
-        background-color: rgb(0, 60, 130);
-    }
-    .link {
-        color: rgb(0, 86, 179);
-        cursor: pointer;
-        text-decoration: underline;
-        margin-top: 20px;
-        display: inline-block;
-        font-size: 14px;
-    }
-    .livro-item {
-        background: rgb(248, 249, 250);
-        margin: 15px 0;
-        padding: 20px;
-        border-radius: 8px;
-        text-align: left;
-        border-left: 5px solid rgb(0, 86, 179);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .livro-item strong {
-        font-size: 18px;
-        color: rgb(30, 30, 30);
-    }
-    .livro-item button {
-        width: auto;
-        padding: 8px 15px;
-        font-size: 13px;
-        margin-top: 15px;
-        background-color: rgb(40, 167, 69);
-    }
-    .livro-item button:hover {
-        background-color: rgb(30, 130, 50);
-    }
-    .resumo-box {
-        margin-top: 15px;
-        font-size: 15px;
-        line-height: 1.5;
-        color: rgb(40, 40, 40);
-        background: rgb(220, 235, 250);
-        padding: 15px;
-        border-radius: 6px;
-    }
+    body { font-family: Arial, sans-serif; background-color: rgb(235, 240, 245); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+    .container { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 1200px; text-align: center; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+    .tela { display: none; }
+    .ativa { display: block; }
+    .form-box { max-width: 400px; margin: 0 auto; }
+    input { width: calc(100% - 22px); padding: 12px; margin: 10px 0; border: 1px solid rgb(200, 200, 200); border-radius: 6px; font-size: 15px; }
+    button { width: 100%; padding: 12px; background-color: rgb(0, 86, 179); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin-top: 15px; font-weight: bold; }
+    button:hover { background-color: rgb(0, 60, 130); }
+    .link { color: rgb(0, 86, 179); cursor: pointer; text-decoration: underline; margin-top: 20px; display: inline-block; }
+    .grid-livros { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+    .livro-item { background: rgb(248, 249, 250); padding: 20px; border-radius: 8px; text-align: left; border-left: 5px solid rgb(0, 86, 179); display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .livro-item strong { font-size: 18px; color: rgb(30, 30, 30); margin-bottom: 15px; display: block; }
+    .livro-item button { width: 100%; padding: 10px; font-size: 14px; margin-top: 10px; background-color: rgb(40, 167, 69); }
+    .livro-item button:hover { background-color: rgb(30, 130, 50); }
+    .btn-secundario { background-color: rgb(108, 117, 125) !important; }
+    .btn-secundario:hover { background-color: rgb(90, 100, 105) !important; }
+    .resumo-box { margin-top: 15px; font-size: 14px; line-height: 1.5; color: rgb(40, 40, 40); background: rgb(220, 235, 250); padding: 15px; border-radius: 6px; }
 </style>
 </head>
 <body>
     <div class="container">
         <div id="tela-registro" class="tela ativa">
-            <h2>Criar Conta</h2>
-            <input type="email" id="reg-email" placeholder="Digite seu e-mail">
-            <input type="password" id="reg-senha" placeholder="Crie uma senha">
-            <button onclick="registrar()">Registrar</button>
-            <span class="link" onclick="mostrarTela('tela-login')">Já tem conta? Faça o Login aqui</span>
+            <div class="form-box">
+                <h2>Criar Conta</h2>
+                <input type="email" id="reg-email" placeholder="Digite seu e-mail">
+                <input type="password" id="reg-senha" placeholder="Crie uma senha">
+                <button onclick="registrar()">Registrar</button>
+                <span class="link" onclick="mostrarTela('tela-login')">Ja tem conta? Faca o Login</span>
+            </div>
         </div>
 
         <div id="tela-login" class="tela">
-            <h2>Acessar Sistema</h2>
-            <input type="email" id="log-email" placeholder="Seu e-mail">
-            <input type="password" id="log-senha" placeholder="Sua senha">
-            <button onclick="fazerLogin()">Entrar</button>
-            <span class="link" onclick="mostrarTela('tela-registro')">Não tem conta? Crie uma aqui</span>
+            <div class="form-box">
+                <h2>Acessar Sistema</h2>
+                <input type="email" id="log-email" placeholder="Seu e-mail">
+                <input type="password" id="log-senha" placeholder="Sua senha">
+                <button onclick="fazerLogin()">Entrar</button>
+                <span class="link" onclick="mostrarTela('tela-registro')">Nao tem conta? Crie aqui</span>
+            </div>
         </div>
 
         <div id="tela-livros" class="tela">
-            <h2>Minha Biblioteca</h2>
-            <button onclick="buscarLivros()">Carregar Meus Livros</button>
-            <div id="lista-livros"></div>
+            <h2>Acervo Gratuito Mundial</h2>
+            <div class="form-box">
+                <input type="text" id="busca-livro" placeholder="Digite um tema (ex: Machado de Assis)">
+                <button onclick="buscarLivrosGratis()">Buscar Livros para Ler</button>
+            </div>
+            <div class="grid-livros"></div>
             <span class="link" onclick="sair()">Sair da conta</span>
         </div>
     </div>
@@ -133,7 +64,6 @@
             document.getElementById('tela-registro').classList.remove('ativa');
             document.getElementById('tela-login').classList.remove('ativa');
             document.getElementById('tela-livros').classList.remove('ativa');
-            
             document.getElementById(idTela).classList.add('ativa');
         }
 
@@ -141,17 +71,17 @@
             const email = document.getElementById('reg-email').value;
             const senha = document.getElementById('reg-senha').value;
             
-            const resposta = await fetch('/registro', {
+            const barraURL = '/';
+            const endpoint = barraURL + 'registro';
+            
+            const resposta = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha })
+                body: JSON.stringify({ email: email, senha: senha })
             });
             
             if (resposta.ok) {
-                alert('Conta criada com sucesso! Faça login agora.');
                 mostrarTela('tela-login');
-            } else {
-                alert('Erro ao criar conta. Tente outro e-mail.');
             }
         }
 
@@ -159,10 +89,13 @@
             const email = document.getElementById('log-email').value;
             const senha = document.getElementById('log-senha').value;
             
-            const resposta = await fetch('/login', {
+            const barraURL = '/';
+            const endpoint = barraURL + 'login';
+            
+            const resposta = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha })
+                body: JSON.stringify({ email: email, senha: senha })
             });
             
             const dados = await resposta.json();
@@ -170,106 +103,85 @@
             if (dados.auth) {
                 meuToken = dados.token;
                 mostrarTela('tela-livros');
-            } else {
-                alert('E-mail ou senha incorretos.');
             }
         }
 
-        async function buscarLivros() {
-            const resposta = await fetch('/livros', {
-                headers: { 'Authorization': 'Bearer ' + meuToken }
-            });
+        async function buscarLivrosGratis() {
+            const termo = document.getElementById('busca-livro').value;
+            const protocolo = 'https:';
+            const barras = '/';
+            const urlBusca = protocolo + barras + barras + 'www.googleapis.com' + barras + 'books' + barras + 'v1' + barras + 'volumes?q=' + encodeURIComponent(termo) + '&filter=free-ebooks';
             
-            const livros = await resposta.json();
-            const lista = document.getElementById('lista-livros');
+            const resposta = await fetch(urlBusca);
+            const dados = await resposta.json();
+            const lista = document.querySelector('.grid-livros');
             lista.innerHTML = '';
 
-            livros.forEach(livro => {
-                const div = document.createElement('div');
-                div.className = 'livro-item';
-                
-                const titulo = document.createElement('strong');
-                titulo.textContent = livro.titulo;
-                
-                const btnResumo = document.createElement('button');
-                btnResumo.textContent = 'Gerar Resumo (IA)';
-                btnResumo.onclick = () => pedirResumo(livro.id, div);
-
-                const btnDetalhes = document.createElement('button');
-                btnDetalhes.textContent = 'Substituir por dados do Google';
-                btnDetalhes.style.backgroundColor = 'rgb(108, 117, 125)';
-                btnDetalhes.style.marginLeft = '10px';
-                btnDetalhes.onclick = () => pedirDetalhes(livro.id, div, btnDetalhes);
-                
-                div.appendChild(titulo);
-                div.appendChild(document.createElement('br'));
-                div.appendChild(btnResumo);
-                div.appendChild(btnDetalhes);
-                lista.appendChild(div);
-            });
+            if (dados.items) {
+                dados.items.forEach(item => {
+                    const info = item.volumeInfo;
+                    const linkLeitura = item.accessInfo.webReaderLink;
+                    const descricao = info.description ? info.description : 'Sem descricao detalhada.';
+                    
+                    const div = document.createElement('div');
+                    div.className = 'livro-item';
+                    
+                    const titulo = document.createElement('strong');
+                    titulo.textContent = info.title;
+                    
+                    const divBotoes = document.createElement('div');
+                    
+                    const btnLer = document.createElement('button');
+                    btnLer.textContent = 'Ler Livro Completo';
+                    btnLer.onclick = () => window.open(linkLeitura, '_blank');
+                    
+                    const btnResumo = document.createElement('button');
+                    btnResumo.textContent = 'Gerar Resumo (IA)';
+                    btnResumo.className = 'btn-secundario';
+                    btnResumo.onclick = () => pedirResumo(info.title, descricao, div);
+                    
+                    div.appendChild(titulo);
+                    
+                    if (linkLeitura) {
+                        divBotoes.appendChild(btnLer);
+                    }
+                    divBotoes.appendChild(btnResumo);
+                    
+                    div.appendChild(divBotoes);
+                    lista.appendChild(div);
+                });
+            }
         }
 
-        async function pedirResumo(id, elementoPai) {
-            limparCaixas(elementoPai);
+        async function pedirResumo(titulo, texto, elementoPai) {
             const msg = document.createElement('div');
             msg.className = 'resumo-box';
-            msg.textContent = 'A Inteligência Artificial está lendo o livro...';
+            msg.textContent = 'A Inteligencia Artificial esta trabalhando...';
             elementoPai.appendChild(msg);
 
-            const resposta = await fetch('/livros/' + id + '/resumo', {
+            const barraURL = '/';
+            const endpoint = barraURL + 'resumo-ia';
+
+            const resposta = await fetch(endpoint, {
                 method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + meuToken }
+                headers: { 
+                    'Authorization': 'Bearer ' + meuToken,
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({ titulo: titulo, texto: texto })
             });
             
             const dados = await resposta.json();
             
             if (dados.resumo) {
                 msg.textContent = dados.resumo;
-            } else {
-                msg.textContent = 'Erro ao gerar resumo. Verifique a conexão com a API.';
             }
-        }
-
-        async function pedirDetalhes(id, elementoPai, botao) {
-            limparCaixas(elementoPai);
-            const msg = document.createElement('div');
-            msg.className = 'resumo-box';
-            msg.style.backgroundColor = 'rgb(240, 240, 240)';
-            msg.textContent = 'Buscando ficha técnica oficial...';
-            elementoPai.appendChild(msg);
-
-            const resposta = await fetch('/livros/' + id + '/detalhes', {
-                headers: { 'Authorization': 'Bearer ' + meuToken }
-            });
-            
-            const dados = await resposta.json();
-            
-            if (dados.autores) {
-                const tituloAtual = elementoPai.querySelector('strong');
-                tituloAtual.textContent = dados.tituloOriginal;
-
-                const detalhes = document.createElement('p');
-                detalhes.innerHTML = 'Autor: ' + dados.autores + ' | Ano: ' + dados.dataPublicacao;
-                detalhes.style.color = 'rgb(85, 85, 85)';
-                detalhes.style.margin = '5px 0 10px 0';
-                tituloAtual.after(detalhes);
-
-                msg.remove();
-                botao.style.display = 'none';
-            } else {
-                msg.textContent = dados.mensagem || 'Informação indisponível.';
-            }
-        }
-
-        function limparCaixas(elementoPai) {
-            const caixasAntigas = elementoPai.querySelectorAll('.resumo-box');
-            caixasAntigas.forEach(caixa => caixa.remove());
         }
 
         function sair() {
             meuToken = '';
             document.getElementById('log-senha').value = '';
-            document.getElementById('lista-livros').innerHTML = '';
+            document.querySelector('.grid-livros').innerHTML = '';
             mostrarTela('tela-login');
         }
     </script>
