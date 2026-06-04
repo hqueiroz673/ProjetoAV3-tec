@@ -23,6 +23,7 @@
     .btn-secundario:hover { background-color: rgb(90, 100, 105) !important; }
     .resumo-box { margin-top: 15px; font-size: 14px; line-height: 1.5; color: rgb(40, 40, 40); background: rgb(220, 235, 250); padding: 15px; border-radius: 6px; }
     .mensagem-status { color: rgb(80, 80, 80); margin-top: 20px; font-size: 18px; }
+    .alerta-pago { color: rgb(200, 50, 50); font-size: 13px; margin-top: 8px; font-weight: bold; text-align: center; }
 </style>
 </head>
 <body>
@@ -117,7 +118,7 @@
             lista.innerHTML = '<div class="mensagem-status">Buscando livros... aguarde um momento.</div>';
             
             try {
-                const urlBusca = 'https:' + '/' + '/www.googleapis.com' + '/books' + '/v1' + '/volumes?q=' + encodeURIComponent(termo) + '&filter=free-ebooks';
+                const urlBusca = 'https:' + '/' + '/www.googleapis.com' + '/books' + '/v1' + '/volumes?q=' + encodeURIComponent(termo);
                 
                 const resposta = await fetch(urlBusca);
                 const dados = await resposta.json();
@@ -128,6 +129,7 @@
                     dados.items.forEach(item => {
                         const info = item.volumeInfo;
                         const linkLeitura = item.accessInfo.webReaderLink;
+                        const isFree = item.saleInfo && item.saleInfo.saleability === 'FREE';
                         const descricao = info.description ? info.description : 'Sem descricao detalhada.';
                         
                         const div = document.createElement('div');
@@ -140,9 +142,23 @@
                         
                         if (linkLeitura) {
                             const btnLer = document.createElement('button');
-                            btnLer.textContent = 'Ler Livro Completo';
+                            
+                            if (isFree) {
+                                btnLer.textContent = 'Ler Livro Completo Gratis';
+                            } else {
+                                btnLer.textContent = 'Ler Amostra (Preview)';
+                                btnLer.style.backgroundColor = 'rgb(220, 100, 0)';
+                            }
+                            
                             btnLer.onclick = () => window.open(linkLeitura, '_blank');
                             divBotoes.appendChild(btnLer);
+                            
+                            if (!isFree) {
+                                const aviso = document.createElement('div');
+                                aviso.className = 'alerta-pago';
+                                aviso.textContent = 'Aviso: Livro pago. Acesso limitado a cerca de 50 paginas.';
+                                divBotoes.appendChild(aviso);
+                            }
                         }
                         
                         const btnResumo = document.createElement('button');
@@ -156,7 +172,7 @@
                         lista.appendChild(div);
                     });
                 } else {
-                    lista.innerHTML = '<div class="mensagem-status">Nenhum livro gratuito encontrado para este tema.</div>';
+                    lista.innerHTML = '<div class="mensagem-status">Nenhum livro encontrado para este tema.</div>';
                 }
             } catch (erro) {
                 lista.innerHTML = '<div class="mensagem-status">Ocorreu um erro na comunicacao. Tente novamente.</div>';
