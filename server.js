@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
-const { GoogleGenAI } = require('@google/genai');
+const { OpenAI } = require('openai');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 
@@ -18,7 +18,10 @@ const pool = new Pool({
     }
 });
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
 const JWT_SECRET = process.env.JWT_SECRET || 'chave_super_secreta_unifor';
 
 app.post('/registro', async (req, res) => {
@@ -118,14 +121,14 @@ app.post('/livros/:id/resumo', verificarToken, async (req, res) => {
         const livro = rows[0];
         const prompt = `Resuma a seguinte obra literária chamada ${livro.titulo}. Destaque os pontos principais da narrativa baseando-se neste texto original:\n\n${livro.conteudo}`;
         
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
-            contents: prompt,
+        const response = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo',
+            messages: [{ role: 'user', content: prompt }],
         });
         
         res.json({ 
             titulo: livro.titulo,
-            resumo: response.text 
+            resumo: response.choices[0].message.content
         });
     } catch (error) {
         console.error(error);
@@ -146,7 +149,8 @@ app.get('/livros/:id/detalhes', verificarToken, async (req, res) => {
         }
         
         const titulo = rows[0].titulo;
-        const urlBusca = `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(titulo)}`;
+        
+        const urlBusca = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(titulo)}`;
         
         const respostaGoogle = await fetch(urlBusca);
         const dadosGoogle = await respostaGoogle.json();
