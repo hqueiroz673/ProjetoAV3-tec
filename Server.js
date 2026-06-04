@@ -4,10 +4,12 @@ const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const { GoogleGenAI } = require('@google/genai');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
