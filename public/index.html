@@ -191,23 +191,26 @@
                 const titulo = document.createElement('strong');
                 titulo.textContent = livro.titulo;
                 
-                const btn = document.createElement('button');
-                btn.textContent = 'Gerar Resumo com IA';
-                btn.onclick = () => pedirResumo(livro.id, div);
+                const btnResumo = document.createElement('button');
+                btnResumo.textContent = 'Gerar Resumo (IA)';
+                btnResumo.onclick = () => pedirResumo(livro.id, div);
+
+                const btnDetalhes = document.createElement('button');
+                btnDetalhes.textContent = 'Ver Autor e Ano (Google)';
+                btnDetalhes.style.backgroundColor = 'rgb(108, 117, 125)';
+                btnDetalhes.style.marginLeft = '10px';
+                btnDetalhes.onclick = () => pedirDetalhes(livro.id, div);
                 
                 div.appendChild(titulo);
                 div.appendChild(document.createElement('br'));
-                div.appendChild(btn);
+                div.appendChild(btnResumo);
+                div.appendChild(btnDetalhes);
                 lista.appendChild(div);
             });
         }
 
         async function pedirResumo(id, elementoPai) {
-            const caixaAntiga = elementoPai.querySelector('.resumo-box');
-            if (caixaAntiga) {
-                caixaAntiga.remove();
-            }
-
+            limparCaixas(elementoPai);
             const msg = document.createElement('div');
             msg.className = 'resumo-box';
             msg.textContent = 'A Inteligência Artificial está lendo o livro...';
@@ -225,6 +228,35 @@
             } else {
                 msg.textContent = 'Erro ao gerar resumo. Verifique a conexão com a API.';
             }
+        }
+
+        async function pedirDetalhes(id, elementoPai) {
+            limparCaixas(elementoPai);
+            const msg = document.createElement('div');
+            msg.className = 'resumo-box';
+            msg.style.backgroundColor = 'rgb(240, 240, 240)';
+            msg.textContent = 'Buscando ficha técnica no Google Books...';
+            elementoPai.appendChild(msg);
+
+            const resposta = await fetch('/livros/' + id + '/detalhes', {
+                headers: { 'Authorization': 'Bearer ' + meuToken }
+            });
+            
+            const dados = await resposta.json();
+            
+            if (dados.autores) {
+                msg.innerHTML = '<strong>Título Oficial:</strong> ' + dados.tituloOriginal + '<br>' +
+                                '<strong>Autor:</strong> ' + dados.autores + '<br>' +
+                                '<strong>Ano de Publicação:</strong> ' + dados.dataPublicacao + '<br>' +
+                                '<strong>Páginas:</strong> ' + dados.paginas;
+            } else {
+                msg.textContent = dados.mensagem || 'Informação indisponível.';
+            }
+        }
+
+        function limparCaixas(elementoPai) {
+            const caixasAntigas = elementoPai.querySelectorAll('.resumo-box');
+            caixasAntigas.forEach(caixa => caixa.remove());
         }
 
         function sair() {
