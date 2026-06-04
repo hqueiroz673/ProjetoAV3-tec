@@ -1,57 +1,181 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Biblioteca IA</title>
-    <style>
-        body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; }
-        input, button { padding: 10px; margin: 5px 0; width: 100%; }
-        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
-        ul { background: #f4f4f4; padding: 20px; border-radius: 5px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca Inteligente</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: rgb(235, 240, 245);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+    .container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+    }
+    .tela {
+        display: none;
+    }
+    .ativa {
+        display: block;
+    }
+    h2 {
+        color: rgb(50, 50, 50);
+        margin-bottom: 20px;
+    }
+    input {
+        width: calc(100% - 22px);
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid rgb(200, 200, 200);
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 15px;
+    }
+    button {
+        width: 100%;
+        padding: 12px;
+        background-color: rgb(0, 86, 179);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 15px;
+        transition: background-color 0.3s;
+    }
+    button:hover {
+        background-color: rgb(0, 60, 130);
+    }
+    .link {
+        color: rgb(0, 86, 179);
+        cursor: pointer;
+        text-decoration: underline;
+        margin-top: 20px;
+        display: inline-block;
+        font-size: 14px;
+    }
+    .livro-item {
+        background: rgb(248, 249, 250);
+        margin: 15px 0;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: left;
+        border-left: 5px solid rgb(0, 86, 179);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .livro-item strong {
+        font-size: 18px;
+        color: rgb(30, 30, 30);
+    }
+    .livro-item button {
+        width: auto;
+        padding: 8px 15px;
+        font-size: 13px;
+        margin-top: 15px;
+        background-color: rgb(40, 167, 69);
+    }
+    .livro-item button:hover {
+        background-color: rgb(30, 130, 50);
+    }
+    .resumo-box {
+        margin-top: 15px;
+        font-size: 15px;
+        line-height: 1.5;
+        color: rgb(40, 40, 40);
+        background: rgb(220, 235, 250);
+        padding: 15px;
+        border-radius: 6px;
+    }
+</style>
 </head>
 <body>
-    <h1>Biblioteca com IA</h1>
-    
-    <h3>1. Entrar no Sistema</h3>
-    <input type="email" id="email" placeholder="Digite seu e-mail">
-    <input type="password" id="senha" placeholder="Digite sua senha">
-    <button onclick="fazerLogin()">Fazer Login</button>
+    <div class="container">
+        <div id="tela-registro" class="tela ativa">
+            <h2>Criar Conta</h2>
+            <input type="email" id="reg-email" placeholder="Digite seu e-mail">
+            <input type="password" id="reg-senha" placeholder="Crie uma senha">
+            <button onclick="registrar()">Registrar</button>
+            <span class="link" onclick="mostrarTela('tela-login')">Já tem conta? Faça o Login aqui</span>
+        </div>
 
-    <h3>2. Consultar Banco de Dados</h3>
-    <button onclick="buscarLivros()">Listar Meus Livros</button>
-    <ul id="lista-livros"></ul>
+        <div id="tela-login" class="tela">
+            <h2>Acessar Sistema</h2>
+            <input type="email" id="log-email" placeholder="Seu e-mail">
+            <input type="password" id="log-senha" placeholder="Sua senha">
+            <button onclick="fazerLogin()">Entrar</button>
+            <span class="link" onclick="mostrarTela('tela-registro')">Não tem conta? Crie uma aqui</span>
+        </div>
+
+        <div id="tela-livros" class="tela">
+            <h2>Minha Biblioteca</h2>
+            <button onclick="buscarLivros()">Carregar Meus Livros</button>
+            <div id="lista-livros"></div>
+            <span class="link" onclick="sair()">Sair da conta</span>
+        </div>
+    </div>
 
     <script>
         let meuToken = '';
 
-        async function fazerLogin() {
-            const email = document.getElementById('email').value;
-            const senha = document.getElementById('senha').value;
+        function mostrarTela(idTela) {
+            document.getElementById('tela-registro').classList.remove('ativa');
+            document.getElementById('tela-login').classList.remove('ativa');
+            document.getElementById('tela-livros').classList.remove('ativa');
+            
+            document.getElementById(idTela).classList.add('ativa');
+        }
 
+        async function registrar() {
+            const email = document.getElementById('reg-email').value;
+            const senha = document.getElementById('reg-senha').value;
+            
+            const resposta = await fetch('/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+            
+            if (resposta.ok) {
+                alert('Conta criada com sucesso! Faça login agora.');
+                mostrarTela('tela-login');
+            } else {
+                alert('Erro ao criar conta. Tente outro e-mail.');
+            }
+        }
+
+        async function fazerLogin() {
+            const email = document.getElementById('log-email').value;
+            const senha = document.getElementById('log-senha').value;
+            
             const resposta = await fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, senha })
             });
-
+            
             const dados = await resposta.json();
             
             if (dados.auth) {
                 meuToken = dados.token;
-                alert('Login aprovado! Token gerado.');
+                mostrarTela('tela-livros');
             } else {
-                alert('Falha no login. Verifique os dados.');
+                alert('E-mail ou senha incorretos.');
             }
         }
 
         async function buscarLivros() {
-            if (!meuToken) {
-                alert('Você precisa fazer login primeiro!');
-                return;
-            }
-
             const resposta = await fetch('/livros', {
                 headers: { 'Authorization': 'Bearer ' + meuToken }
             });
@@ -61,10 +185,53 @@
             lista.innerHTML = '';
 
             livros.forEach(livro => {
-                const item = document.createElement('li');
-                item.textContent = livro.titulo;
-                lista.appendChild(item);
+                const div = document.createElement('div');
+                div.className = 'livro-item';
+                
+                const titulo = document.createElement('strong');
+                titulo.textContent = livro.titulo;
+                
+                const btn = document.createElement('button');
+                btn.textContent = 'Gerar Resumo com IA';
+                btn.onclick = () => pedirResumo(livro.id, div);
+                
+                div.appendChild(titulo);
+                div.appendChild(document.createElement('br'));
+                div.appendChild(btn);
+                lista.appendChild(div);
             });
+        }
+
+        async function pedirResumo(id, elementoPai) {
+            const caixaAntiga = elementoPai.querySelector('.resumo-box');
+            if (caixaAntiga) {
+                caixaAntiga.remove();
+            }
+
+            const msg = document.createElement('div');
+            msg.className = 'resumo-box';
+            msg.textContent = 'A Inteligência Artificial está lendo o livro...';
+            elementoPai.appendChild(msg);
+
+            const resposta = await fetch('/livros/' + id + '/resumo', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + meuToken }
+            });
+            
+            const dados = await resposta.json();
+            
+            if (dados.resumo) {
+                msg.textContent = dados.resumo;
+            } else {
+                msg.textContent = 'Erro ao gerar resumo. Verifique a conexão com a API.';
+            }
+        }
+
+        function sair() {
+            meuToken = '';
+            document.getElementById('log-senha').value = '';
+            document.getElementById('lista-livros').innerHTML = '';
+            mostrarTela('tela-login');
         }
     </script>
 </body>
