@@ -73,9 +73,7 @@
             const email = document.getElementById('reg-email').value;
             const senha = document.getElementById('reg-senha').value;
             
-            const urlRegistro = 'registro';
-            
-            const resposta = await fetch(urlRegistro, {
+            const resposta = await fetch('/registro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, senha: senha })
@@ -90,9 +88,7 @@
             const email = document.getElementById('log-email').value;
             const senha = document.getElementById('log-senha').value;
             
-            const urlLogin = 'login';
-            
-            const resposta = await fetch(urlLogin, {
+            const resposta = await fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, senha: senha })
@@ -111,24 +107,30 @@
             const lista = document.querySelector('.grid-livros');
             
             if (!termo) {
-                lista.innerHTML = '<div class="mensagem-status">Por favor, digite um tema ou autor para buscar.</div>';
+                lista.innerHTML = '<div class="mensagem-status">Por favor, digite um tema ou autor.</div>';
                 return;
             }
 
             lista.innerHTML = '<div class="mensagem-status">Buscando livros... aguarde um momento.</div>';
             
             try {
-                const urlBusca = 'https:' + '/' + '/www.googleapis.com' + '/books' + '/v1' + '/volumes?q=' + encodeURIComponent(termo);
-                
+                // Agora quem faz a busca é o seu próprio servidor (Railway)
+                const urlBusca = '/api/pesquisar?tema=' + encodeURIComponent(termo);
                 const resposta = await fetch(urlBusca);
                 const dados = await resposta.json();
                 
                 lista.innerHTML = '';
 
+                // Se o Google devolver um erro explicitly, a gente mostra
+                if (dados.error) {
+                    lista.innerHTML = '<div class="mensagem-status">Erro da API: ' + (dados.error.message || 'Bloqueio do Google') + '</div>';
+                    return;
+                }
+
                 if (dados.items && dados.items.length > 0) {
                     dados.items.forEach(item => {
                         const info = item.volumeInfo;
-                        const linkLeitura = item.accessInfo.webReaderLink;
+                        const linkLeitura = item.accessInfo && item.accessInfo.webReaderLink ? item.accessInfo.webReaderLink : null;
                         const isFree = item.saleInfo && item.saleInfo.saleability === 'FREE';
                         const descricao = info.description ? info.description : 'Sem descricao detalhada.';
                         
@@ -136,7 +138,7 @@
                         div.className = 'livro-item';
                         
                         const titulo = document.createElement('strong');
-                        titulo.textContent = info.title;
+                        titulo.textContent = info.title || 'Livro sem titulo';
                         
                         const divBotoes = document.createElement('div');
                         
@@ -172,7 +174,7 @@
                         lista.appendChild(div);
                     });
                 } else {
-                    lista.innerHTML = '<div class="mensagem-status">Nenhum livro encontrado para este tema.</div>';
+                    lista.innerHTML = '<div class="mensagem-status">Nenhum livro encontrado para este tema. Tente outro termo.</div>';
                 }
             } catch (erro) {
                 lista.innerHTML = '<div class="mensagem-status">Ocorreu um erro na comunicacao. Tente novamente.</div>';
@@ -188,10 +190,8 @@
             msg.textContent = 'A Inteligencia Artificial esta trabalhando...';
             elementoPai.appendChild(msg);
 
-            const urlResumo = 'resumo-ia';
-
             try {
-                const resposta = await fetch(urlResumo, {
+                const resposta = await fetch('/resumo-ia', {
                     method: 'POST',
                     headers: { 
                         'Authorization': 'Bearer ' + meuToken,
