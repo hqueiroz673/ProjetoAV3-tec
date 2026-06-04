@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Biblioteca IA</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; }
+        input, button { padding: 10px; margin: 5px 0; width: 100%; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+        ul { background: #f4f4f4; padding: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Biblioteca com IA</h1>
+    
+    <h3>1. Entrar no Sistema</h3>
+    <input type="email" id="email" placeholder="Digite seu e-mail">
+    <input type="password" id="senha" placeholder="Digite sua senha">
+    <button onclick="fazerLogin()">Fazer Login</button>
+
+    <h3>2. Consultar Banco de Dados</h3>
+    <button onclick="buscarLivros()">Listar Meus Livros</button>
+    <ul id="lista-livros"></ul>
+
+    <script>
+        let meuToken = '';
+
+        async function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+
+            const resposta = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+
+            const dados = await resposta.json();
+            
+            if (dados.auth) {
+                meuToken = dados.token;
+                alert('Login aprovado! Token gerado.');
+            } else {
+                alert('Falha no login. Verifique os dados.');
+            }
+        }
+
+        async function buscarLivros() {
+            if (!meuToken) {
+                alert('Você precisa fazer login primeiro!');
+                return;
+            }
+
+            const resposta = await fetch('/livros', {
+                headers: { 'Authorization': 'Bearer ' + meuToken }
+            });
+            
+            const livros = await resposta.json();
+            const lista = document.getElementById('lista-livros');
+            lista.innerHTML = '';
+
+            livros.forEach(livro => {
+                const item = document.createElement('li');
+                item.textContent = livro.titulo;
+                lista.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
