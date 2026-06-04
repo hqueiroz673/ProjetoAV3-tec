@@ -128,13 +128,49 @@ app.post('/livros/:id/resumo', verificarToken, async (req, res) => {
             resumo: response.text 
         });
     } catch (error) {
-        console.error("ERRO GRAVE NA ROTA DE RESUMO:");
         console.error(error);
         res.status(500).json({ 
             error: 'Erro interno no servidor',
             detalhe: error.message
         });
     }
+});
+
+app.get('/livros/:id/detalhes', verificarToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query('SELECT titulo FROM livros WHERE id = $1', [id]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Livro não encontrado no banco' });
+        }
+        
+        const titulo = rows[0].titulo;
+        const urlBusca = `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(titulo)}`;
+        
+        const respostaGoogle = await fetch(urlBusca);
+        const dadosGoogle = await respostaGoogle.json();
+        
+        if (dadosGoogle.items && dadosGoogle.items.length > 0) {
+            const info = dadosGoogle.items[0].volumeInfo;
+            return res.json({
+                tituloOriginal: info.title,
+                autores: info.authors ? info.authors.join(', ') : 'Autor desconhecido',
+                dataPublicacao: info.publishedDate || 'Não informada',
+                paginas: info.pageCount || 'Não informado'
+            });
+        }
+        
+        res.json({ mensagem: 'Livro não encontrado na base do Google' });
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao conectar com a API externa' });
+    }
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
